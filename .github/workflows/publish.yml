@@ -1,0 +1,40 @@
+name: Upload mDL PHP Library to GCP Artifact Registry
+
+on: workflow_dispatch
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '0.0.1'
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Archive the library
+        run: composer archive --format=zip --file=mdl
+
+      - name: Google Cloud Authentication
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: '>= 363.0.0'
+
+      - name: Upload to GCP Artifact Registry
+        run: |
+          gcloud artifacts files upload \
+            --source=mdl.zip \
+            --repository=php-mdl \
+            --location=us-central1
