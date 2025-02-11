@@ -37,7 +37,7 @@ jobs:
       - name: Upload to GCP Artifact Registry
         run: |
           gcloud artifacts generic upload \
-            --package=blerify/mdl \
+            --package=blerify-mdl \
             --version=0.0.1 \
             --source=mdl.zip \
             --repository=php-mdl \
