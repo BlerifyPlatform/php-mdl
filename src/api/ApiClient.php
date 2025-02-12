@@ -5,6 +5,7 @@ namespace Blerify\Licenses;
 use Blerify\Exception\AuthenticationException;
 use Blerify\Exception\BadRequestException;
 use Blerify\Exception\HttpRequestException;
+use Blerify\Model\Response\CreateResponse;
 use Composer\Pcre\Regex;
 use Exception;
 use Ramsey\Uuid\Uuid;
@@ -56,5 +57,27 @@ class ApiClient
         curl_close($ch);
 
         return $response;
+    }
+
+    public function call($data = [], $correlationId = null, $path, $method)
+    {
+        try {
+            $response = $this->request(
+                $method,
+                $path,
+                $data,
+                $correlationId
+            );
+            $response = json_decode($response, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $msg = 'JSON decode error: ' . json_last_error_msg();
+                return ["error" => true, "message" => $msg, "code" => 30000];
+            }
+            return ["error" => false, "data" => $response];
+        } catch (HttpRequestException | AuthenticationException $e) {
+            return ["error" => true, "message" => $e->getMessage(), "details" => $e->getDetails(), "code" => $e->getCode()];
+        } catch (Exception $e) {
+            return ["error" => true, "message" => $e->getMessage(), "details" => [], "code" => $e->getCode()];
+        }
     }
 }
