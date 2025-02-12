@@ -3,3 +3,4 @@ config
 composer.lock
 /vendor/
 .phpunit.result.cache
+project-example

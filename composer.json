@@ -1,8 +1,8 @@
 {
   "name": "blerify/mdl",
-  "description": "Blerify library to manage endpoints to generate ISO-18013-5 compliant documents",
+  "description": "Blerify library to interface with endpoints to generate ISO-18013-5 compliant documents",
   "type": "library",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "autoload": {
     "psr-4": {
       "Blerify\\Licenses\\": "src/api",
