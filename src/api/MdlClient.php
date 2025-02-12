@@ -41,4 +41,16 @@ class MdlClient
 
         return SignResponse::fromArray($response['data']);
     }
+
+    public function assemble($data = [], string $credentialId, $correlationId = null)
+    {
+        $path = '/api/v1/organizations/' . $this->jwtHandler->getOrganizationId() . '/projects/' . $this->projectId . '/credentials/' . $credentialId . '/sign';
+        $response = $this->apiClient->call($data, $correlationId, $path, 'PUT');
+
+        if ($response['error']) {
+            return $response;
+        }
+
+        return $response['data'];
+    }
 }

@@ -20,6 +20,7 @@ require 'vendor/autoload.php';
 use Blerify\Authentication\JwtHandler;
 use Blerify\Licenses\MdlClient;
 use Blerify\Model\Request\AdditionalData;
+use Blerify\Model\Request\Assemble;
 use Blerify\Model\Request\Create;
 use Blerify\Model\Request\OrganizationUser;
 use Blerify\Model\Request\MdlData;
@@ -55,19 +56,28 @@ $organizationUser = OrganizationUser::new()->id('8-203-1365')->did('did:lac1:1iT
 $createRequest = Create::new()->templateId($templateId)->additionalData($additionalData)->organizationUser($organizationUser);
 $correlationId = Uuid::uuid4()->toString();
 
-$response = $mdlClient->create($createRequest, $correlationId);
-handleError($response);
+$createResponse = $mdlClient->create($createRequest, $correlationId);
+handleError($createResponse);
 echo "Ok\n";
 
 // Step 2: Call to sign (ONLY FOR TESTING, do not use for production)
 echo "\n2. Calling API to sign Message: ";
-$signingMessage = $response->getSigningMessage();
+$signingMessage = $createResponse->getSigningMessage();
 $issuerSigningJwk = "{\"kty\": \"EC\",\"kid\": \"11\",\"x\": \"iTwtg0eQbcbNabf2Nq9L_VM_lhhPCq2s0Qgw2kRx29s\",\"y\": \"YKwXDRz8U0-uLZ3NSI93R_35eNkl6jHp6Qg8OCup7VM\",\"crv\": \"P-256\",\"d\": \"o6PrzBm1dCfSwqJHW6DVqmJOCQSIAosrCPfbFJDMNp4\"}";
 $signingRequest = Sign::new()->signingMessage($signingMessage)->jwk($issuerSigningJwk);
 $signResponse = $mdlClient->signTest($signingRequest, $correlationId);
 handleError($signResponse);
 echo "Ok\n";
 // echo "\nSign Response: " . $signResponse->getSignature() . "\n" ;
+
+// Step 3: Assemble response
+echo "\n3. Assemble final mDL: ";
+$pemIssuerCertificate = "-----BEGIN CERTIFICATE-----MIICKjCCAdCgAwIBAgIUV8bM0wi95D7KN0TyqHE42ru4hOgwCgYIKoZIzj0EAwIwUzELMAkGA1UEBhMCVVMxETAPBgNVBAgMCE5ldyBZb3JrMQ8wDQYDVQQHDAZBbGJhbnkxDzANBgNVBAoMBk5ZIERNVjEPMA0GA1UECwwGTlkgRE1WMB4XDTIzMDkxNDE0NTUxOFoXDTMzMDkxMTE0NTUxOFowUzELMAkGA1UEBhMCVVMxETAPBgNVBAgMCE5ldyBZb3JrMQ8wDQYDVQQHDAZBbGJhbnkxDzANBgNVBAoMBk5ZIERNVjEPMA0GA1UECwwGTlkgRE1WMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEiTwtg0eQbcbNabf2Nq9L/VM/lhhPCq2s0Qgw2kRx29tgrBcNHPxTT64tnc1Ij3dH/fl42SXqMenpCDw4K6ntU6OBgTB/MB0GA1UdDgQWBBSrbS4DuR1JIkAzj7zK3v2TM+r2xzAfBgNVHSMEGDAWgBSrbS4DuR1JIkAzj7zK3v2TM+r2xzAPBgNVHRMBAf8EBTADAQH/MCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAKBggqhkjOPQQDAgNIADBFAiAJ/Qyrl7A+ePZOdNfc7ohmjEdqCvxaos6//gfTvncuqQIhANo4q8mKCA9J8k/+zh//yKbN1bLAtdqPx7dnrDqV3Lg+-----END CERTIFICATE-----";
+$assembleRequest = Assemble::new()->templateId($templateId)->signature($signResponse->getSignature())->kid("11")->certificate($pemIssuerCertificate);
+$assebleResponse = $mdlClient->assemble($assembleRequest, $createResponse->getCredential()->getId(), $correlationId);
+handleError($assebleResponse);
+echo "Ok\n";
+echo "mDL " .  $assebleResponse . "\n";
 
 
 function handleError($response)
