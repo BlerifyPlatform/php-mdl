@@ -8,7 +8,8 @@
       "Blerify\\Licenses\\": "src/api",
       "Blerify\\Authentication\\": "src/authentication",
       "Blerify\\Model\\Request\\": "src/model/request",
-      "Blerify\\Model\\Response\\": "src/model/response"
+      "Blerify\\Model\\Response\\": "src/model/response",
+      "Blerify\\Exception\\": "src/exception"
     }
   },
   "require": {
