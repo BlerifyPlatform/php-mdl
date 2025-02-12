@@ -18,7 +18,7 @@ class JwtHandler
 
     private $audience;
 
-    public function __construct($clientId,$organizationId, $privateKey, $tokenUri, $audience)
+    public function __construct($clientId, $organizationId, $privateKey, $tokenUri, $audience)
     {
         $this->clientId = $clientId;
         $this->organizationId = $organizationId;
@@ -27,6 +27,28 @@ class JwtHandler
         $this->cachedJwt = null;
         $this->cachedExpiration = null;
         $this->audience = $audience;
+    }
+
+    public static function new($path): JwtHandler
+    {
+        if (!file_exists($path)) {
+            throw new Exception("Config file not found: $path");
+        }
+        $credentials = json_decode(file_get_contents($path), true);
+        $organizationId = $credentials['organization_id'];
+        $jwtHandler = new JwtHandler(
+            $credentials['client_id'],
+            $organizationId,
+            $credentials['private_key'],
+            $credentials['token_uri'],
+            $credentials['iam_audience']
+        );
+        return $jwtHandler;
+    }
+
+    public function getOrganizationId(): string
+    {
+        return $this->organizationId;
     }
 
     public function createJwt($audience)
@@ -71,22 +93,23 @@ class JwtHandler
         if (!isset($tokenResponse['access_token'])) {
             throw new Exception("Access token not found in response.");
         }
-         // Cache the JWT and its expiration time
-         $this->cachedJwt = $tokenResponse['access_token'];
-         $this->cachedExpiration = $this->getJwtExp($jwt);
- 
-         return $this->cachedJwt;
+        // Cache the JWT and its expiration time
+        $this->cachedJwt = $tokenResponse['access_token'];
+        $this->cachedExpiration = $this->getJwtExp($jwt);
+
+        return $this->cachedJwt;
     }
 
-    public function getJwtExp($jwt) {
+    public function getJwtExp($jwt)
+    {
         $parts = explode(".", $jwt);
-        
+
         if (count($parts) !== 3) {
             throw new Exception("Invalid JWT format");
         }
-    
+
         $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $parts[1])), true);
-    
+
         $exp = (int) $payload['exp'];
         if (!isset($exp)) {
             throw new Exception("Invalid JWT: 'exp' not valid");

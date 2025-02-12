@@ -2,8 +2,7 @@
 
 namespace Blerify\Licenses;
 
-use Blerify\Authentication\JwtHandler;
-use Exception;
+use Ramsey\Uuid\Uuid;
 
 class ApiClient
 {
@@ -16,8 +15,9 @@ class ApiClient
         $this->jwtHandler = $jwtHandler;
     }
 
-    public function request($method, $path, $data = [])
+    public function request($method, $path, $data = [], $correlationId =  null)
     {
+        $correlationId = $correlationId ?? Uuid::uuid4()->toString();
         $url = $this->endpointBase . $path;
 
         // Get access token
@@ -30,6 +30,7 @@ class ApiClient
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $accessToken,
             'Content-Type: application/json',
+            'correlation-id: ' . $correlationId
         ]);
 
         if (!empty($data)) {
@@ -39,6 +40,6 @@ class ApiClient
         $response = curl_exec($ch);
         curl_close($ch);
 
-        return json_decode($response, true);
+        return $response;
     }
 }
