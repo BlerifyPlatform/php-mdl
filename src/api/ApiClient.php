@@ -2,6 +2,11 @@
 
 namespace Blerify\Licenses;
 
+use Blerify\Exception\AuthenticationException;
+use Blerify\Exception\BadRequestException;
+use Blerify\Exception\HttpRequestException;
+use Composer\Pcre\Regex;
+use Exception;
 use Ramsey\Uuid\Uuid;
 
 class ApiClient
@@ -38,6 +43,16 @@ class ApiClient
         }
 
         $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if ($httpCode === 401) {
+            throw new AuthenticationException("Authentication failed", 401, json_decode($response, true));
+        }
+
+        if ($httpCode >= 400) {
+            throw new HttpRequestException("HTTP request failed", $httpCode, json_decode($response, true));
+        }
+
         curl_close($ch);
 
         return $response;

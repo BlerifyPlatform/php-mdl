@@ -50,10 +50,16 @@ $devicePublicKey = '{
 }';
 $additionalData = AdditionalData::new()->mdlData($mdlData)->devicePublicKey(json_decode($devicePublicKey));
 $organizationUser = OrganizationUser::new()->id('8-203-1365')->did('did:lac1:1iT5g9gduT4Q5DWE2bnncfnBCnM9uXPWMrCTvhPf2a8wpHWJgFBEZn295t1h9ucnQyvJ');
-
 $createRequest = Create::new()->templateId($templateId)->additionalData($additionalData)->organizationUser($organizationUser);
 $correlationId = Uuid::uuid4()->toString();
 
 $response = $mdlClient->create($createRequest, $correlationId);
-echo "Signing message: " .  $response->getSigningMessage() . "\n";
+if (is_array($response) && !empty($response['error'])) {
+    // Handle the error
+    echo "Error occurred: " . $response['message'] . " (Code: " . $response['code'] . ")\n";
+    echo "Error details: " . json_encode($response['details']);
+} else {
+    // Success, process the data
+    echo 'Signing message: '. $response->getSigningMessage() . '\n';
+}
 ```
