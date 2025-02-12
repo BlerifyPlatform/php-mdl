@@ -12,12 +12,12 @@ class CreateResponse
     public static function fromArray(array $data): self
     {
         $response = new self();
-        $response->credential = $data['credential'] ?? null;
+        $response->credential = Credential::fromArray($data['credential']) ?? null;
         $response->signingMessage = $data['signingMessage'] ?? null;
         return $response;
     }
 
-    public function getCredential(): ?object
+    public function getCredential(): Credential
     {
         return $this->credential;
     }
