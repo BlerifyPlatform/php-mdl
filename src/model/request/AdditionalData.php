@@ -7,11 +7,19 @@ use JsonSerializable;
 class AdditionalData implements JsonSerializable
 {
     private $mdlData;
+
+    private $validityInfo;
     private $devicePublicKey;
 
     public static function new(): AdditionalData
     {
         return new AdditionalData();
+    }
+
+    public function validityInfo($validityInfo): AdditionalData
+    {
+        $this->validityInfo = $validityInfo;
+        return $this;
     }
 
     public function mdlData($mdlData): AdditionalData
@@ -31,6 +39,7 @@ class AdditionalData implements JsonSerializable
     {
         return [
             'mdlData' => $this->mdlData,
+            'validityInfo' => $this->validityInfo,
             'devicePublicKey' => $this->devicePublicKey
         ];
     }
