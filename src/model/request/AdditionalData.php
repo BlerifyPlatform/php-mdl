@@ -6,9 +6,9 @@ use JsonSerializable;
 
 class AdditionalData implements JsonSerializable
 {
-    private $mdlData;
+    private MdlData $mdlData;
 
-    private $validityInfo;
+    private ValidityInfo $validityInfo;
     private $devicePublicKey;
 
     public static function new(): AdditionalData

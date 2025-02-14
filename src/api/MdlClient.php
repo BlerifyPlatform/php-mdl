@@ -2,6 +2,9 @@
 
 namespace Blerify\Licenses;
 
+use Blerify\Model\Request\Assemble;
+use Blerify\Model\Request\Create;
+use Blerify\Model\Request\Sign;
 use Blerify\Model\Response\CreateResponse;
 use Blerify\Model\Response\SignResponse;
 
@@ -18,7 +21,7 @@ class MdlClient
         $this->projectId = $projectId;
     }
 
-    public function create($data = [], $correlationId = null)
+    public function create(Create $data, $correlationId = null)
     {
         $path = '/api/v1/organizations/' . $this->jwtHandler->getOrganizationId() . '/projects/' . $this->projectId . '/credentials';
         $response = $this->apiClient->call($data, $correlationId, $path, 'POST');
@@ -30,7 +33,7 @@ class MdlClient
         return CreateResponse::fromArray($response['data']);
     }
 
-    public function signTest($data = [], $correlationId = null)
+    public function signTest(Sign $data, $correlationId = null)
     {
         $path = '/api/v1/organizations/' . $this->jwtHandler->getOrganizationId() . '/projects/' . $this->projectId . '/crypto/sign/es256';
         $response = $this->apiClient->call($data, $correlationId, $path, 'POST');
@@ -42,7 +45,7 @@ class MdlClient
         return SignResponse::fromArray($response['data']);
     }
 
-    public function assemble($data = [], string $credentialId, $correlationId = null)
+    public function assemble(Assemble $data, string $credentialId, $correlationId = null)
     {
         $path = '/api/v1/organizations/' . $this->jwtHandler->getOrganizationId() . '/projects/' . $this->projectId . '/credentials/' . $credentialId . '/sign';
         $response = $this->apiClient->call($data, $correlationId, $path, 'PUT');

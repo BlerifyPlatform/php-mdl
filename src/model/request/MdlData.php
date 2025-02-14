@@ -6,20 +6,20 @@ use JsonSerializable;
 
 class MdlData implements JsonSerializable
 {
-    private $familyName;
-    private $givenName;
-    private $birthdate;
-    private $issueDate;
-    private $expiryDate;
-    private $issuingCountry;
+    private string $familyName;
+    private string $givenName;
+    private string $birthdate;
+    private string $issueDate;
+    private string $expiryDate;
+    private string $issuingCountry;
 
-    private $issuingAuthority;
-    private $documentNumber;
-    private $portrait;
+    private string $issuingAuthority;
+    private string $documentNumber;
+    private string $portrait;
 
     private $drivingPrivileges;
 
-    private $unDistinguishingSign;
+    private string $unDistinguishingSign;
 
     public static function new(): MdlData
     {

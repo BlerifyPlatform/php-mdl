@@ -6,9 +6,9 @@ use JsonSerializable;
 
 class ValidityInfo implements JsonSerializable
 {
-    private $signed;
-    private $validFrom;
-    private $validUntil;
+    private string $signed;
+    private string $validFrom;
+    private string $validUntil;
 
     public static function new(): ValidityInfo
     {
