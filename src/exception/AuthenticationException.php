@@ -9,10 +9,10 @@ class AuthenticationException extends Exception
 {
     private array $details;
 
-    public function __construct(string $message = "Authentication failed", int $code = 401, array $details = [], Throwable $previous = null)
+    public function __construct(string $message = "Authentication failed", int $code = 401, $details = [], Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
-        $this->details = $details;
+        $this->details = is_array($details) ? $details : [];
     }
 
     public function getDetails(): array
