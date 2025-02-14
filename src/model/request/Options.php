@@ -6,8 +6,8 @@ use JsonSerializable;
 
 class Options implements JsonSerializable
 {
-    private $additionalData;
-    private $onboard;
+    private bool $additionalData;
+    private bool $onboard;
 
     public static function new(): Options
     {

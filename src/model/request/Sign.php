@@ -7,7 +7,7 @@ use JsonSerializable;
 class Sign implements JsonSerializable
 {
     private $jwk;
-    private $signingMessage;
+    private string $signingMessage;
 
     public static function new(): Sign
     {

@@ -6,8 +6,8 @@ use JsonSerializable;
 
 class OrganizationUser implements JsonSerializable
 {
-    private $id;
-    private $did;
+    private string $id;
+    private string $did;
 
     public static function new(): OrganizationUser
     {

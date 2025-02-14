@@ -6,10 +6,10 @@ use JsonSerializable;
 
 class Assemble implements JsonSerializable
 {
-    private $templateId;
-    private $signature;
-    private $kid;
-    private $certificate;
+    private string $templateId;
+    private string $signature;
+    private string $kid;
+    private string $certificate;
 
     public static function new(): Assemble
     {

@@ -6,10 +6,10 @@ use JsonSerializable;
 
 class Create implements JsonSerializable
 {
-    private $templateId;
-    private $additionalData;
+    private string $templateId;
+    private AdditionalData $additionalData;
 
-    private $organizationUser;
+    private OrganizationUser $organizationUser;
 
     public static function new(): Create
     {
