@@ -3,10 +3,7 @@
 namespace Blerify\Licenses;
 
 use Blerify\Exception\AuthenticationException;
-use Blerify\Exception\BadRequestException;
 use Blerify\Exception\HttpRequestException;
-use Blerify\Model\Response\CreateResponse;
-use Composer\Pcre\Regex;
 use Exception;
 use Ramsey\Uuid\Uuid;
 
