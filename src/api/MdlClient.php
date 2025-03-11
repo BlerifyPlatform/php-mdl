@@ -2,6 +2,8 @@
 
 namespace Blerify\Licenses;
 
+use Blerify\Model\Request\Revoke;
+use Blerify\Model\Request\OnHold;
 use Blerify\Model\Request\Assemble;
 use Blerify\Model\Request\Create;
 use Blerify\Model\Request\Sign;
@@ -55,5 +57,29 @@ class MdlClient
         }
 
         return $response['data'];
+    }
+
+    public function hold(OnHold $data, string $credentialId, $correlationId = null)
+    {
+        $path = '/api/v1/organizations/' . $this->jwtHandler->getOrganizationId() . '/projects/' . $this->projectId . '/credentials/' . $credentialId . '/hold';
+        $response = $this->apiClient->call($data, $correlationId, $path, 'PUT');
+
+        if ($response['error']) {
+            return $response;
+        }
+
+        return $response['correlation-id'];
+    }
+
+    public function revoke(Revoke $data, string $credentialId, $correlationId = null)
+    {
+        $path = '/api/v1/organizations/' . $this->jwtHandler->getOrganizationId() . '/projects/' . $this->projectId . '/credentials/' . $credentialId . '/revoke';
+        $response = $this->apiClient->call($data, $correlationId, $path, 'DELETE');
+
+        if ($response['error']) {
+            return $response;
+        }
+
+        return $response['correlation-id'];
     }
 }

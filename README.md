@@ -20,6 +20,8 @@ require 'vendor/autoload.php';
 use Blerify\Authentication\JwtHandler;
 use Blerify\Licenses\MdlClient;
 use Blerify\Model\Request\AdditionalData;
+use Blerify\Model\Request\OnHold;
+use Blerify\Model\Request\Revoke;
 use Blerify\Model\Request\Assemble;
 use Blerify\Model\Request\Create;
 use Blerify\Model\Request\OrganizationUser;
@@ -82,6 +84,24 @@ handleError($assebleResponse);
 echo "Ok\n";
 echo "mDL " .  $assebleResponse . "\n";
 
+
+// Step 4: OnHold mDL
+echo "\n4. OnHold mDL: ";
+$reasonCode = "100";
+$onHoldRequest = OnHold::new()->status(true)->reasonCode($reasonCode);
+$onHoldResponse = $mdlClient->hold($onHoldRequest, $createResponse->getCredential()->getId(), $correlationId);
+handleError($onHoldResponse);
+echo "Ok\n";
+echo "correlation-id " .  $onHoldResponse . "\n";
+
+// Step 5: Revoke mDL
+echo "\n5. Revoke mDL: ";
+$reasonCode = "101";
+$revokeRequest = Revoke::new()->reasonCode($reasonCode);
+$revokeResponse = $mdlClient->revoke($revokeRequest, $createResponse->getCredential()->getId(), $correlationId);
+handleError($revokeResponse);
+echo "Ok\n";
+echo "correlation-id " .  $revokeResponse . "\n";
 
 function handleError($response)
 {
