@@ -20,18 +20,18 @@ require 'vendor/autoload.php';
 use Blerify\Authentication\JwtHandler;
 use Blerify\Licenses\MdlClient;
 use Blerify\Model\Request\AdditionalData;
-use Blerify\Model\Request\OnHold;
-use Blerify\Model\Request\Revoke;
 use Blerify\Model\Request\Assemble;
 use Blerify\Model\Request\Create;
 use Blerify\Model\Request\OrganizationUser;
 use Blerify\Model\Request\MdlData;
+use Blerify\Model\Request\OnHold;
+use Blerify\Model\Request\Revoke;
 use Blerify\Model\Request\Sign;
 use Blerify\Model\Request\ValidityInfo;
 use Ramsey\Uuid\Uuid;
 
 // Input variables
-$baseEndpoint = 'https://api.blerify.com';
+$baseEndpoint = 'https://api.staging.blerify.com';
 
 $projectId = '7c37e269-56fa-4e38-85fc-707075fcf968';
 $templateId = '1a58e41e-6f0b-4dff-a277-a2cd0ad9ea1a';
@@ -55,11 +55,17 @@ $devicePublicKey = '{
     "y":"oxS1OAORJ7XNUHNfVFGeM8E0RQVFxWA62fJj-sxW03c",
     "crv": "P-256"
 }';
-$additionalData = AdditionalData::new()->mdlData($mdlData)
-->validityInfo($validityInfo)->devicePublicKey(json_decode($devicePublicKey));
+$additionalData = AdditionalData::new()
+    ->mdlData($mdlData)
+    ->validityInfo($validityInfo)
+    ->devicePublicKey(json_decode($devicePublicKey))
+    ->kid('11');
+
 $organizationUser = OrganizationUser::new()->id('8-203-1365')->did('did:lac1:1iT5g9gduT4Q5DWE2bnncfnBCnM9uXPWMrCTvhPf2a8wpHWJgFBEZn295t1h9ucnQyvJ');
+
 $createRequest = Create::new()->templateId($templateId)->additionalData($additionalData)->organizationUser($organizationUser);
 $correlationId = Uuid::uuid4()->toString();
+// echo "\ncorrelationId: " . $correlationId . "\n";
 
 $createResponse = $mdlClient->create($createRequest, $correlationId);
 handleError($createResponse);
@@ -83,7 +89,6 @@ $assebleResponse = $mdlClient->assemble($assembleRequest, $createResponse->getCr
 handleError($assebleResponse);
 echo "Ok\n";
 echo "mDL " .  $assebleResponse . "\n";
-
 
 // Step 4: OnHold mDL
 echo "\n4. OnHold mDL: ";
