@@ -11,6 +11,8 @@ class AdditionalData implements JsonSerializable
     private ValidityInfo $validityInfo;
     private $devicePublicKey;
 
+    private $kid;
+
     public static function new(): AdditionalData
     {
         return new AdditionalData();
@@ -35,12 +37,18 @@ class AdditionalData implements JsonSerializable
         return $this;
     }
 
+    public function kid($kid): AdditionalData {
+        $this->kid = $kid;
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         return [
             'mdlData' => $this->mdlData,
             'validityInfo' => $this->validityInfo,
-            'devicePublicKey' => $this->devicePublicKey
+            'devicePublicKey' => $this->devicePublicKey,
+            'kid' => $this->kid
         ];
     }
 }
