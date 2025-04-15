@@ -7,6 +7,7 @@ use Blerify\Model\Request\OnHold;
 use Blerify\Model\Request\Assemble;
 use Blerify\Model\Request\Create;
 use Blerify\Model\Request\Sign;
+use Blerify\Model\Request\Validate;
 use Blerify\Model\Response\CreateResponse;
 use Blerify\Model\Response\SignResponse;
 
@@ -82,4 +83,17 @@ class MdlClient
 
         return $response['correlation-id'];
     }
+
+    public function validate(Validate $data, string $credentialId, $correlationId = null)
+    {
+        $path = '/api/v1/organizations/' . $this->jwtHandler->getOrganizationId() . '/projects/' . $this->projectId . '/credentials/' . $credentialId . '/signature/validate';
+        $response = $this->apiClient->call($data, $correlationId, $path, 'POST');
+
+        if ($response['error']) {
+            return $response;
+        }
+
+        return $response['data'];
+    }
+
 }
