@@ -7,7 +7,7 @@ use JsonSerializable;
 class OnHold implements JsonSerializable
 {
     private bool $status;
-    private string $reasonCode;
+    private StateChangeMetadata $metadata;
 
     public static function new(): OnHold
     {
@@ -20,9 +20,9 @@ class OnHold implements JsonSerializable
         return $this;
     }
 
-    public function reasonCode($reasonCode): OnHold
+    public function metadata($metadata): OnHold
     {
-        $this->reasonCode = $reasonCode;
+        $this->metadata = $metadata;
         return $this;
     }
 
@@ -30,7 +30,7 @@ class OnHold implements JsonSerializable
     {
         return [
             'status' => $this->status,
-            'reasonCode' => $this->reasonCode,
+            'metadata' => $this->metadata,
         ];
     }
 }

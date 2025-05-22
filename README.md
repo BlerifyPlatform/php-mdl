@@ -27,6 +27,8 @@ use Blerify\Model\Request\MdlData;
 use Blerify\Model\Request\OnHold;
 use Blerify\Model\Request\Revoke;
 use Blerify\Model\Request\Sign;
+use Blerify\Model\Request\StateChangeMetadata;
+use Blerify\Model\Request\Validate;
 use Blerify\Model\Request\ValidityInfo;
 use Ramsey\Uuid\Uuid;
 
@@ -88,28 +90,38 @@ echo "Ok\n";
 // Step 3: Assemble response
 echo "\n3. Assemble final mDL: ";
 $assembleRequest = Assemble::new()->templateId($templateId)->signature($signResponse->getSignature())->kid("11")->certificate($pemIssuerCertificate);
-$assebleResponse = $mdlClient->assemble($assembleRequest, $createResponse->getCredential()->getId(), $correlationId);
-handleError($assebleResponse);
+$assembleResponse = $mdlClient->assemble($assembleRequest, $createResponse->getCredential()->getId(), $correlationId);
+handleError($assembleResponse);
 echo "Ok\n";
-echo "mDL " .  $assebleResponse . "\n";
+echo "mDL " .  $assembleResponse . "\n";
 
 // Step 4: OnHold mDL
 echo "\n4. OnHold mDL: ";
-$reasonCode = "100";
-$onHoldRequest = OnHold::new()->status(true)->reasonCode($reasonCode);
+$status = false; // if true it means to re-enable a suspended license
+$metadata = StateChangeMetadata::new()->code("xxx")->description("xxxxx")->category("xxxxx");
+$onHoldRequest = OnHold::new()->status(true)->metadata($metadata);
 $onHoldResponse = $mdlClient->hold($onHoldRequest, $createResponse->getCredential()->getId(), $correlationId);
 handleError($onHoldResponse);
 echo "Ok\n";
-echo "correlation-id " .  $onHoldResponse . "\n";
+echo "on-hold response: " . json_encode($onHoldResponse) . "\n";
 
 // Step 5: Revoke mDL
 echo "\n5. Revoke mDL: ";
-$reasonCode = "101";
-$revokeRequest = Revoke::new()->reasonCode($reasonCode);
+$metadata = StateChangeMetadata::new()->code("yyyy")->description("yyyyy")->category("yyyyy");
+$revokeRequest = Revoke::new()->metadata($metadata);
 $revokeResponse = $mdlClient->revoke($revokeRequest, $createResponse->getCredential()->getId(), $correlationId);
 handleError($revokeResponse);
 echo "Ok\n";
-echo "correlation-id " .  $revokeResponse . "\n";
+echo "revocation response: " . json_encode($revokeResponse) . "\n"; // irreversible state
+
+// Step 6: Validate mDL:
+echo "\n6, Validate mDL: ";
+$mdocToValidate = Validate::new()->mdoc($assembleResponse);
+$validationResponse = $mdlClient->validate($mdocToValidate, $createResponse->getCredential()->getId(), $correlationId);
+handleError($validationResponse);
+echo "Ok\n";
+echo "validation response: " . json_encode($validationResponse) . "\n";
+
 
 function handleError($response)
 {
