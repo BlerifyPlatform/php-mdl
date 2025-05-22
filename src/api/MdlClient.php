@@ -69,19 +69,19 @@ class MdlClient
             return $response;
         }
 
-        return $response['correlation-id'];
+        return $response['data'];
     }
 
     public function revoke(Revoke $data, string $credentialId, $correlationId = null)
     {
         $path = '/api/v1/organizations/' . $this->jwtHandler->getOrganizationId() . '/projects/' . $this->projectId . '/credentials/' . $credentialId . '/revoke';
-        $response = $this->apiClient->call($data, $correlationId, $path, 'DELETE');
+        $response = $this->apiClient->call($data, $correlationId, $path, 'PUT');
 
         if ($response['error']) {
             return $response;
         }
 
-        return $response['correlation-id'];
+        return $response['data'];
     }
 
     public function validate(Validate $data, string $credentialId, $correlationId = null)

@@ -6,23 +6,23 @@ use JsonSerializable;
 
 class Revoke implements JsonSerializable
 {
-    private string $reasonCode;
+    private StateChangeMetadata $metadata;
 
     public static function new(): Revoke
     {
         return new Revoke();
     }
 
-    public function reasonCode($reasonCode): Revoke
+    public function metadata($metadata): Revoke
     {
-        $this->reasonCode = $reasonCode;
+        $this->metadata = $metadata;
         return $this;
     }
 
     public function jsonSerialize(): array
     {
         return [
-            'reasonCode' => $this->reasonCode,
+            'metadata' => $this->metadata,
         ];
     }
 }
