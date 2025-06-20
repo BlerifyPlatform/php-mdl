@@ -50,8 +50,8 @@ $portrait = 'FFD8FFE000104A46494600010101009000900000FFDB004300130D0E110E0C13110
 $mdlData = MdlData::new()->familyName('Maravi')->givenName('Carlos')->birthDate('1987-03-15')
 ->issueDate('2023-09-01')->expiryDate('2028-09-30')->issuingCountry('US')->issuingAuthority('Acme')
 ->documentNumber('8-203-1365')->portrait($portrait)->drivingPrivileges([
-    json_decode('{"vehicle_category_code": "C","issue_date": "2023-09-01","expiry_date": "2028-09-30", "codes": [{"code": "200"}]}')])
-->unDistinguishingSign('PA');
+    json_decode('{"vehicle_category_code": "C","issue_date": "2023-09-01","expiry_date": "2028-09-30", "codes": [{"code": "210"}]}')])
+->unDistinguishingSign('PA')->nationality("PA");
 $validityInfo = ValidityInfo::new()->signed("2025-02-13T10:10:18Z")->validFrom("2025-02-13T10:10:25Z")->validUntil("2030-02-13T10:10:18Z");
 $devicePublicKey = '{
     "kty":"EC",
@@ -66,13 +66,11 @@ $additionalData = AdditionalData::new()
     ->devicePublicKey(json_decode($devicePublicKey))
     ->certificate($pemIssuerCertificate)
     ->kid('11');
-
 $organizationUser = OrganizationUser::new()->id('8-203-1365')->did('did:lac1:1iT5g9gduT4Q5DWE2bnncfnBCnM9uXPWMrCTvhPf2a8wpHWJgFBEZn295t1h9ucnQyvJ');
 
 $createRequest = Create::new()->templateId($templateId)->additionalData($additionalData)->organizationUser($organizationUser);
 $correlationId = Uuid::uuid4()->toString();
 // echo "\ncorrelationId: " . $correlationId . "\n";
-
 $createResponse = $mdlClient->create($createRequest, $correlationId);
 handleError($createResponse);
 echo "Ok\n";
