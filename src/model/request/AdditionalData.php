@@ -14,6 +14,11 @@ class AdditionalData implements JsonSerializable
     private $certificate;
     private $kid;
 
+    /**
+     * @var NamespaceEntry[] Lista de namespaces
+     */
+    private array $namespaces = [];
+
     public static function new(): AdditionalData
     {
         return new AdditionalData();
@@ -44,6 +49,16 @@ class AdditionalData implements JsonSerializable
     }
     public function kid($kid): AdditionalData {
         $this->kid = $kid;
+        return $this;
+    }
+    public function namespaces(array $namespaces): AdditionalData
+    {
+        foreach ($namespaces as $ns) {
+            if (!$ns instanceof NamespaceEntry) {
+                throw new \InvalidArgumentException("Todos los elementos de namespaces deben ser instancias de NamespaceEntry");
+            }
+        }
+        $this->namespaces = $namespaces;
         return $this;
     }
 
