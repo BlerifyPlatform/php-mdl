@@ -69,7 +69,8 @@ class AdditionalData implements JsonSerializable
             'validityInfo' => $this->validityInfo,
             'devicePublicKey' => $this->devicePublicKey,
             'certificate' => $this->certificate,
-            'kid' => $this->kid
+            'kid' => $this->kid,
+            'namespaces' => $this->namespaces
         ];
     }
 }
