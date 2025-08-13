@@ -38,6 +38,7 @@ class MdlData implements JsonSerializable
     private ?string $residentState=null;
     private ?string $residentPostalCode=null;
     private ?string $residentCountry=null;
+    private ?string $signatureUsualMark=null;
 
     public static function new(): MdlData
     {
@@ -185,6 +186,12 @@ class MdlData implements JsonSerializable
         return $this;
     }
 
+    public function signatureUsualMark(string $signatureUsualMark): MdlData
+    {
+        $this->signatureUsualMark = $signatureUsualMark;
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         if ($this->familyName !== null) {
@@ -260,6 +267,9 @@ class MdlData implements JsonSerializable
         }
         if ($this->residentCountry !== null) {
             $data['resident_country'] = $this->residentCountry;
+        }
+        if ($this->signatureUsualMark !== null) {
+            $data['signature_usual_mark'] = $this->signatureUsualMark;
         }
 
         return $data;
