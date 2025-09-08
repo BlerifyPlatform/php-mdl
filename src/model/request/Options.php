@@ -36,7 +36,7 @@ class Options implements JsonSerializable
         // validate only onboard or update can be true
         //safely check for null
         $this->onboard ??=false;
-        $this->update ??=false;
+        $this->update ??= false;
         if ($this->onboard === $this->update) {
             throw new \InvalidArgumentException('Only one of onboard or update can be true');
         }

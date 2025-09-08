@@ -92,7 +92,6 @@ $correlationId = Uuid::uuid4()->toString();
 // echo "\ncorrelationId: " . $correlationId . "\n";
 $createResponse = $mdlClient->create($createRequest, $correlationId);
 
-$createResponse = $mdlClient->create($createRequest, $correlationId);
 echo "\n sha256 hash from  base64url signing message from: 0x"
         . hash('sha256', base64_decode($createResponse->getSigningMessage()), false) . "\n";
 
