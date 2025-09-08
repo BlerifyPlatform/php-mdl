@@ -8,6 +8,7 @@ class Options implements JsonSerializable
 {
     private bool $additionalData;
     private bool $onboard;
+    private bool $update;
 
     public static function new(): Options
     {
@@ -25,11 +26,24 @@ class Options implements JsonSerializable
         $this->onboard = $onboard;
         return $this;
     }
+    public function update($update): Options
+    {
+        $this->update = $update;
+        return $this;
+    }
     public function jsonSerialize(): array
     {
+        // validate only onboard or update can be true
+        //safely check for null
+        $this->onboard ??=false;
+        $this->update ??= false;
+        if ($this->onboard === $this->update) {
+            throw new \InvalidArgumentException('Only one of onboard or update can be true');
+        }
         return [
             'additionalData' => $this->additionalData,
-            'onboard' => $this->onboard
+            'onboard' => $this->onboard,
+            'update' => $this->update
         ];
     }
 }

@@ -24,14 +24,15 @@ use Blerify\Model\Request\Assemble;
 use Blerify\Model\Request\Create;
 use Blerify\Model\Request\OrganizationUser;
 use Blerify\Model\Request\MdlData;
+use Blerify\Model\Request\NamespaceData;
+use Blerify\Model\Request\NamespaceEntry;
 use Blerify\Model\Request\OnHold;
+use Blerify\Model\Request\Options;
 use Blerify\Model\Request\Revoke;
 use Blerify\Model\Request\Sign;
 use Blerify\Model\Request\StateChangeMetadata;
 use Blerify\Model\Request\Validate;
 use Blerify\Model\Request\ValidityInfo;
-use Blerify\Model\Request\NamespaceData;
-use Blerify\Model\Request\NamespaceEntry;
 use Ramsey\Uuid\Uuid;
 
 // Input variables
@@ -53,16 +54,16 @@ $signatureUsualMark = 'FFD8FFE000104A46494600010101009000900000FFDB004300130D0E1
 $mdlData = MdlData::new()->familyName('Maravi')->givenName('Carlos')->birthDate('1987-03-15')
 ->issueDate('2023-09-01')->expiryDate('2028-09-30')->issuingCountry('US')->issuingAuthority('Acme')
 ->documentNumber('8-203-1365')->portrait($portrait)->drivingPrivileges([
-    json_decode('{"vehicle_category_code": "C","issue_date": "2023-09-01","expiry_date": "2028-09-30", "codes": [{"code": "210"}]}')])
+    json_decode('{"vehicle_category_code": "C","issue_date": "2025-08-25","expiry_date": "2028-09-30", "codes": [{"code": "210"}]}')])
 ->unDistinguishingSign('PA')->nationality("PA")->signatureUsualMark($signatureUsualMark);
-$validityInfo = ValidityInfo::new()->signed("2025-02-13T10:10:18Z")->validFrom("2025-02-13T10:10:25Z")->validUntil("2030-02-13T10:10:18Z");
+$validityInfo = ValidityInfo::new()->signed("2025-08-28T10:10:18Z")->validFrom("2025-08-29T20:46:25Z")->validUntil("2030-02-13T10:10:18Z");
 $devicePublicKey = '{
     "kty":"EC",
     "x":"iBh5ynojixm_D0wfjADpouGbp6b3Pq6SuFHU3htQhVk",
     "y":"oxS1OAORJ7XNUHNfVFGeM8E0RQVFxWA62fJj-sxW03c",
     "crv": "P-256"
 }';
-$pemIssuerCertificate = "-----BEGIN CERTIFICATE-----\nMIICKjCCAdCgAwIBAgIUV8bM0wi95D7KN0TyqHE42ru4hOgwCgYIKoZIzj0EAwIwUzELMAkGA1UEBhMCVVMxETAPBgNVBAgMCE5ldyBZb3JrMQ8wDQYDVQQHDAZBbGJhbnkxDzANBgNVBAoMBk5ZIERNVjEPMA0GA1UECwwGTlkgRE1WMB4XDTIzMDkxNDE0NTUxOFoXDTMzMDkxMTE0NTUxOFowUzELMAkGA1UEBhMCVVMxETAPBgNVBAgMCE5ldyBZb3JrMQ8wDQYDVQQHDAZBbGJhbnkxDzANBgNVBAoMBk5ZIERNVjEPMA0GA1UECwwGTlkgRE1WMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEiTwtg0eQbcbNabf2Nq9L/VM/lhhPCq2s0Qgw2kRx29tgrBcNHPxTT64tnc1Ij3dH/fl42SXqMenpCDw4K6ntU6OBgTB/MB0GA1UdDgQWBBSrbS4DuR1JIkAzj7zK3v2TM+r2xzAfBgNVHSMEGDAWgBSrbS4DuR1JIkAzj7zK3v2TM+r2xzAPBgNVHRMBAf8EBTADAQH/MCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAKBggqhkjOPQQDAgNIADBFAiAJ/Qyrl7A+ePZOdNfc7ohmjEdqCvxaos6//gfTvncuqQIhANo4q8mKCA9J8k/+zh//yKbN1bLAtdqPx7dnrDqV3Lg+\n-----END CERTIFICATE-----"; //"-----BEGIN CERTIFICATE-----MIICKjCCAdCgAwIBAgIUV8bM0wi95D7KN0TyqHE42ru4hOgwCgYIKoZIzj0EAwIwUzELMAkGA1UEBhMCVVMxETAPBgNVBAgMCE5ldyBZb3JrMQ8wDQYDVQQHDAZBbGJhbnkxDzANBgNVBAoMBk5ZIERNVjEPMA0GA1UECwwGTlkgRE1WMB4XDTIzMDkxNDE0NTUxOFoXDTMzMDkxMTE0NTUxOFowUzELMAkGA1UEBhMCVVMxETAPBgNVBAgMCE5ldyBZb3JrMQ8wDQYDVQQHDAZBbGJhbnkxDzANBgNVBAoMBk5ZIERNVjEPMA0GA1UECwwGTlkgRE1WMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEiTwtg0eQbcbNabf2Nq9L/VM/lhhPCq2s0Qgw2kRx29tgrBcNHPxTT64tnc1Ij3dH/fl42SXqMenpCDw4K6ntU6OBgTB/MB0GA1UdDgQWBBSrbS4DuR1JIkAzj7zK3v2TM+r2xzAfBgNVHSMEGDAWgBSrbS4DuR1JIkAzj7zK3v2TM+r2xzAPBgNVHRMBAf8EBTADAQH/MCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAKBggqhkjOPQQDAgNIADBFAiAJ/Qyrl7A+ePZOdNfc7ohmjEdqCvxaos6//gfTvncuqQIhANo4q8mKCA9J8k/+zh//yKbN1bLAtdqPx7dnrDqV3Lg+-----END CERTIFICATE-----";
+$pemIssuerCertificate = "-----BEGIN CERTIFICATE-----\nMIICKjCCAdCgAwIBAgIUV8bM0wi95D7KN0TyqHE42ru4hOgwCgYIKoZIzj0EAwIwUzELMAkGA1UEBhMCVVMxETAPBgNVBAgMCE5ldyBZb3JrMQ8wDQYDVQQHDAZBbGJhbnkxDzANBgNVBAoMBk5ZIERNVjEPMA0GA1UECwwGTlkgRE1WMB4XDTIzMDkxNDE0NTUxOFoXDTMzMDkxMTE0NTUxOFowUzELMAkGA1UEBhMCVVMxETAPBgNVBAgMCE5ldyBZb3JrMQ8wDQYDVQQHDAZBbGJhbnkxDzANBgNVBAoMBk5ZIERNVjEPMA0GA1UECwwGTlkgRE1WMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEiTwtg0eQbcbNabf2Nq9L/VM/lhhPCq2s0Qgw2kRx29tgrBcNHPxTT64tnc1Ij3dH/fl42SXqMenpCDw4K6ntU6OBgTB/MB0GA1UdDgQWBBSrbS4DuR1JIkAzj7zK3v2TM+r2xzAfBgNVHSMEGDAWgBSrbS4DuR1JIkAzj7zK3v2TM+r2xzAPBgNVHRMBAf8EBTADAQH/MCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAKBggqhkjOPQQDAgNIADBFAiAJ/Qyrl7A+ePZOdNfc7ohmjEdqCvxaos6//gfTvncuqQIhANo4q8mKCA9J8k/+zh//yKbN1bLAtdqPx7dnrDqV3Lg+\n-----END CERTIFICATE-----";
 $namespaceData = NamespaceData::new()
     ->bloodType("O+")
     ->organDonor(false)
@@ -77,21 +78,30 @@ $additionalData = AdditionalData::new()
     ->validityInfo($validityInfo)
     ->devicePublicKey(json_decode($devicePublicKey))
     ->certificate($pemIssuerCertificate)
-    ->kid('11')
+    ->kid('qOoXT9jk1bTm5G2Ud3o1FrEJcuIlag3Nb7ai18GI3gE') // ideally RFC-7638
     ->namespaces([$namespaceEntry]);
 $organizationUser = OrganizationUser::new()->id('8-203-1365')->did('did:lac1:1iT5g9gduT4Q5DWE2bnncfnBCnM9uXPWMrCTvhPf2a8wpHWJgFBEZn295t1h9ucnQyvJ');
-
-$createRequest = Create::new()->templateId($templateId)->additionalData($additionalData)->organizationUser($organizationUser);
+// $options = Options::new()->onboard(true); // use it when the user (identified by citizenID) had a license
+// Note: When user has already a license use
+$options = Options::new()->update(true);
+$createRequest = Create::new()->templateId($templateId)
+    ->additionalData($additionalData)
+    ->organizationUser($organizationUser)
+    ->options($options);
 $correlationId = Uuid::uuid4()->toString();
 // echo "\ncorrelationId: " . $correlationId . "\n";
 $createResponse = $mdlClient->create($createRequest, $correlationId);
+
+echo "\n sha256 hash from  base64url signing message from: 0x"
+        . hash('sha256', base64_decode($createResponse->getSigningMessage()), false) . "\n";
+
 handleError($createResponse);
 echo "Ok\n";
 
 // Step 2: Call to sign (ONLY FOR TESTING, do not use for production)
 echo "\n2. Calling API to sign Message: ";
 $signingMessage = $createResponse->getSigningMessage();
-$issuerSigningJwk = "{\"kty\": \"EC\",\"kid\": \"11\",\"x\": \"iTwtg0eQbcbNabf2Nq9L_VM_lhhPCq2s0Qgw2kRx29s\",\"y\": \"YKwXDRz8U0-uLZ3NSI93R_35eNkl6jHp6Qg8OCup7VM\",\"crv\": \"P-256\",\"d\": \"o6PrzBm1dCfSwqJHW6DVqmJOCQSIAosrCPfbFJDMNp4\"}";
+$issuerSigningJwk = '{"alg":"ES256","crv":"P-256","d":"ldzAeZg7nIo_KhmaPEJk8QBqUofxXfSIDNtfdeg4bd8","kid":"qOoXT9jk1bTm5G2Ud3o1FrEJcuIlag3Nb7ai18GI3gE","kty":"EC","use":"sig","x":"yyB-JzQ1tMoP_uGu8DMOZFCQlx0jyVui3Z2OLtb9zTU","y":"5V_9xs6N4mbq1QdJvwdrhdWC8mN4oTRcP6OvC6Hew3s"}';
 $signingRequest = Sign::new()->signingMessage($signingMessage)->jwk($issuerSigningJwk);
 $signResponse = $mdlClient->signTest($signingRequest, $correlationId);
 handleError($signResponse);
@@ -100,7 +110,7 @@ echo "Ok\n";
 
 // Step 3: Assemble response
 echo "\n3. Assemble final mDL: ";
-$assembleRequest = Assemble::new()->templateId($templateId)->signature($signResponse->getSignature())->kid("11")->certificate($pemIssuerCertificate);
+$assembleRequest = Assemble::new()->templateId($templateId)->signature($signResponse->getSignature())->kid("qOoXT9jk1bTm5G2Ud3o1FrEJcuIlag3Nb7ai18GI3gE")->certificate($pemIssuerCertificate);
 $assembleResponse = $mdlClient->assemble($assembleRequest, $createResponse->getCredential()->getId(), $correlationId);
 handleError($assembleResponse);
 echo "Ok\n";
