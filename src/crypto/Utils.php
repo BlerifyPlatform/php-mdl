@@ -1,8 +1,6 @@
 <?php
 namespace Blerify\Crypto;
 
-require 'vendor/autoload.php';
-
 use Exception;
 use phpseclib3\File\ASN1;
 use RuntimeException;
