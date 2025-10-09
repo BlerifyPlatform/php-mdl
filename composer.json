@@ -9,12 +9,14 @@
       "Blerify\\Authentication\\": "src/authentication",
       "Blerify\\Model\\Request\\": "src/model/request",
       "Blerify\\Model\\Response\\": "src/model/response",
-      "Blerify\\Exception\\": "src/exception"
+      "Blerify\\Exception\\": "src/exception",
+      "Blerify\\Crypto\\": "src/crypto"
     }
   },
   "require": {
     "firebase/php-jwt": "^6.10",
-    "ramsey/uuid": "^4.2"
+    "ramsey/uuid": "^4.2",
+    "phpseclib/phpseclib": "^3.0"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.68"
