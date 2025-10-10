@@ -118,7 +118,7 @@ echo "\n3. Assemble final mDL: ";
 $assembleRequest = Assemble::new()
 ->templateId($templateId)->signature($signResponse->getSignature()) // signature in hex
 ->kid("gpWQnAjvAdLWCqQAFNglAVHlqVajGmZTPQ")->certificate($pemIssuerCertificate)
-->signatureType(Assemble::PLAIN_SIGNATURE_TYPE); // OTHER OPTIONS: Assemble::DER_SIGNATURE_TYPE;
+->signatureType(Assemble::PLAIN_SIGNATURE_TYPE);
 $assembleResponse = $mdlClient->assemble($assembleRequest, $createResponse->getCredential()->getId(), $correlationId);
 handleError($assembleResponse);
 echo "Ok\n";
@@ -161,4 +161,25 @@ function handleError($response)
         exit;
     }
 }
+```
+
+### DER signatures support
+
+```php
+// Step 3: Assemble response
+echo "\n3. Assemble final mDL: ";
+$derSignature = '5439d3889838f26447dd9be258a415a18c4a5611368f23a3b58305516f9cc7a6337b3c26472a28550b5080fc2ca8fd1fa8fccd9b76ed9efe1d8c4c6c68f475e0';//$signResponse->getSignature();
+$signature = Utils::derToPlainSignature($derSignature);
+if (is_array($signature) && !empty($signature['error'])) {
+    // show trace
+    echo "Error converting DER to plain: " . $signature['message'] . " (Code: " . $signature['code'] . ")\n";
+    print_r(["Trace: " => $signature['trace']]);
+    exit;
+}
+
+$assembleRequest = Assemble::new()
+->templateId($templateId)->signature($signature) // signature in hex
+->kid("gpWQnAjvAdLWCqQAFNglAVHlqVajGmZTPQ")->certificate($pemIssuerCertificate)
+->signatureType(Assemble::PLAIN_SIGNATURE_TYPE);
+
 ```

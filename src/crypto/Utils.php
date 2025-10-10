@@ -1,12 +1,11 @@
 <?php
 namespace Blerify\Crypto;
 
-use Exception;
+use Blerify\Exception\GenericError;
 use phpseclib3\File\ASN1;
 use RuntimeException;
 
 class Utils {
-
     /**
      * @param string $derSig Binary DER signature
      * @return array{r: string, s: string}
@@ -15,8 +14,9 @@ class Utils {
     {
         $decoded = ASN1::decodeBER($derSig);
         if (empty($decoded)) {
-            $msg = 'Unable to decode DER signature';
-            return ["error" => true, "message" => $msg, "code" => 100000];
+            $code = 100000;
+            $trace = debug_backtrace();
+            return GenericError::getError($code, $trace);
         }
 
         $el = $decoded[0];
@@ -34,8 +34,9 @@ class Utils {
         $values = ASN1::asn1map($decoded[0], $map);
         // get bytes from big integers
         if (!isset($values['r']) || !isset($values['s'])) {
-            $msg = 'Unexpected structure: missing r/s bytes';
-            return ["error" => true, "message" => $msg, "code" => 100001];
+            $code = 100001;
+            $trace = debug_backtrace();
+            return GenericError::getError($code, $trace);
         }
         $r = self::valToHex($values['r']);
         if (isset($r['error']) && $r['error'] === true) {
@@ -57,16 +58,18 @@ class Utils {
     {
         $der = hex2bin($derHex);
         if ($der === false) {
-            $msg = "Invalid hex input: unable to convert to binary";
-            return ["error" => true, "message" => $msg, "code" => 100000];
+            $code = 100004;
+            $trace = debug_backtrace();
+            return GenericError::getError($code, $trace);
         }
         $parts = self::parse($der);
         if (isset($parts['error']) && $parts['error'] === true) {
             return $parts; // propagate error
         }
         if (!isset($parts['r']) || !isset($parts['s'])) {
-            $msg = 'Unexpected structure: missing r/s hex characters';
-            return ["error" => true, "message" => $msg, "code" => 100001];
+            $code = 100005;
+            $trace = debug_backtrace();
+            return GenericError::getError($code, $trace);
         }
         // normalize
         $r = self::normalizeTo32Bytes(hex2bin($parts['r']));
@@ -128,13 +131,15 @@ class Utils {
             if (ord($raw[0]) === 0x00) {
                 $trimmed = substr($raw, 1);
                 if (strlen($trimmed) !== 32) {
-                    $msg = 'After removing 0x00 the size is not 32 bytes';
-                    return ["error" => true, "message" => $msg, "code" => 100000];
+                    $code = 100006;
+                    $trace = debug_backtrace();
+                    return GenericError::getError($code, $trace);
                 }
                 return $trimmed;
             } else {
-                $msg = 'Integer of 33 bytes without leading 0x00 — unexpected value';
-                return ["error" => true, "message" => $msg, "code" => 100001];
+                $code = 100007;
+                $trace = debug_backtrace();
+                return GenericError::getError($code, $trace);
             }
         }
         if ($len < 32) {
@@ -142,8 +147,9 @@ class Utils {
             return str_repeat("\x00", 32 - $len) . $raw;
         }
         // len > 33 -> out of range
-            $msg = "Integer too large for P-256: {$len} bytes";
-            return ["error" => true, "message" => $msg, "code" => 100002];
+            $code = 100002;
+            $trace = debug_backtrace();
+            return GenericError::getError($code, $trace);
     }
 
     /**
@@ -185,8 +191,9 @@ class Utils {
             return bin2hex($v);
         }
 
-        $msg = 'Unexpected value type for hex conversion';
-        return ["error" => true, "message" => $msg, "code" => 100003];
+        $code = 100003;
+        $trace = debug_backtrace();
+        return GenericError::getError($code, $trace);
     }
 
 }
