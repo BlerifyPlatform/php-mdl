@@ -1,22 +1,22 @@
 <?php
 namespace Blerify\Crypto;
 
-use Exception;
+use Blerify\Exception\GenericError;
 use phpseclib3\File\ASN1;
 use RuntimeException;
 
 class Utils {
-
     /**
      * @param string $derSig Binary DER signature
      * @return array{r: string, s: string}
-     * @throws \RuntimeException
      */
     public static function parse(string $derSig): array
     {
         $decoded = ASN1::decodeBER($derSig);
         if (empty($decoded)) {
-            throw new RuntimeException('Unable to decode DER signature');
+            $code = 100000;
+            $trace = debug_backtrace();
+            return GenericError::getError($code, $trace);
         }
 
         $el = $decoded[0];
@@ -33,10 +33,20 @@ class Utils {
         // asn1map devuelve los valores mapeados
         $values = ASN1::asn1map($decoded[0], $map);
         // get bytes from big integers
-        if (!isset($values['r'], $values['s'])) {
-        throw new RuntimeException('Unexpected structure: missing r/s');
+        if (!isset($values['r']) || !isset($values['s'])) {
+            $code = 100001;
+            $trace = debug_backtrace();
+            return GenericError::getError($code, $trace);
         }
-        return ['r' => self::valToHex($values['r']), 's' => self::valToHex($values['s'])];
+        $r = self::valToHex($values['r']);
+        if (isset($r['error']) && $r['error'] === true) {
+            return $r; // propagate error
+        }
+        $s = self::valToHex($values['s']);
+        if (isset($s['error']) && $s['error'] === true) {
+            return $s; // propagate error
+        }
+        return ['r' => $r, 's' => $s];
     }
 
     /**
@@ -48,15 +58,31 @@ class Utils {
     {
         $der = hex2bin($derHex);
         if ($der === false) {
-            throw new RuntimeException("Invalid hex input: unable to convert to binary");
+            $code = 100004;
+            $trace = debug_backtrace();
+            return GenericError::getError($code, $trace);
         }
         $parts = self::parse($der);
-        if (!isset($parts['r'], $parts['s'])) {
-            throw new RuntimeException('Unexpected structure: missing r/s');
+        if (isset($parts['error']) && $parts['error'] === true) {
+            return $parts; // propagate error
+        }
+        if (!isset($parts['r']) || !isset($parts['s'])) {
+            $code = 100005;
+            $trace = debug_backtrace();
+            return GenericError::getError($code, $trace);
         }
         // normalize
-        $parts['r'] = self::normalizeTo32Bytes(hex2bin($parts['r']));
-        $parts['s'] = self::normalizeTo32Bytes(hex2bin($parts['s']));
+        $r = self::normalizeTo32Bytes(hex2bin($parts['r']));
+        if (isset($r['error']) && $r['error'] === true) {
+            return $r; // propagate error
+        }
+        $s = self::normalizeTo32Bytes(hex2bin($parts['s']));
+        if (isset($s['error']) && $s['error'] === true) {
+            return $s; // propagate error
+        }
+        // if all good, replace with normalized values
+        $parts['r'] = $r;
+        $parts['s'] = $s;
         return $parts;
     }
 
@@ -68,14 +94,20 @@ class Utils {
     public static function parseHexComponents(string $derHex): array
     {
         $parts = self::parseFromHex($derHex);
+        if (isset($parts['error']) && $parts['error'] === true) {
+            return $parts;
+        }
         return [
             'r' => bin2hex($parts['r']),
             's' => bin2hex($parts['s']),
         ];
     }
 
-    public static function derToPlainSignature(string $hex_sig): string {
+    public static function derToPlainSignature(string $hex_sig) {
         $parts = self::parseHexComponents($hex_sig);
+        if (isset($parts['error']) && $parts['error'] === true) {
+            return $parts;
+        }
         return $parts['r'] . $parts['s'];
     }
  
@@ -85,7 +117,11 @@ class Utils {
      * - If it has < 32 bytes -> left-pad with zeros
      * - If it has > 32 bytes and first byte != 0x00 -> exception (out of range)
     */
-    public static function normalizeTo32Bytes(string $raw): string {
+    /**
+     * @param string $raw
+     * @return string|array
+     */
+    public static function normalizeTo32Bytes(string $raw) {
         $len = strlen($raw);
         if ($len === 32) {
             return $raw;
@@ -95,11 +131,15 @@ class Utils {
             if (ord($raw[0]) === 0x00) {
                 $trimmed = substr($raw, 1);
                 if (strlen($trimmed) !== 32) {
-                    throw new Exception("Después de quitar 0x00 el tamaño no es 32 bytes");
+                    $code = 100006;
+                    $trace = debug_backtrace();
+                    return GenericError::getError($code, $trace);
                 }
                 return $trimmed;
             } else {
-                throw new Exception("Integer of 33 bytes without leading 0x00 — unexpected value");
+                $code = 100007;
+                $trace = debug_backtrace();
+                return GenericError::getError($code, $trace);
             }
         }
         if ($len < 32) {
@@ -107,7 +147,9 @@ class Utils {
             return str_repeat("\x00", 32 - $len) . $raw;
         }
         // len > 33 -> out of range
-        throw new Exception("Integer too large for P-256: {$len} bytes");
+            $code = 100002;
+            $trace = debug_backtrace();
+            return GenericError::getError($code, $trace);
     }
 
     /**
@@ -149,7 +191,9 @@ class Utils {
             return bin2hex($v);
         }
 
-        throw new RuntimeException('Unexpected value type for hex conversion');
+        $code = 100003;
+        $trace = debug_backtrace();
+        return GenericError::getError($code, $trace);
     }
 
 }
