@@ -57,7 +57,7 @@ class MdlClient
             return $response;
         }
 
-        return $response['data'];
+        return $response['data']['mdoc'];
     }
 
     public function hold(OnHold $data, string $credentialId, $correlationId = null)
